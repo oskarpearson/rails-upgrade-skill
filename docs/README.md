@@ -50,23 +50,34 @@ A comprehensive Claude skill that:
 
 ## 📦 What's Inside This Package?
 
-### Core Files
+### Structure Overview
 
 ```
 rails-upgrade-assistant/
 │
-├── SKILL.md                      ⭐ Main entry point for Claude
-│   └── Core instructions, workflows, MCP integration
+├── SKILL.md (300 lines)          ⭐ Compact entry point
+│   └── Overview, triggers, file references
 │
-├── README.md                     📖 This file - Getting started guide
-│   └── Installation, usage, quick start
+├── workflows/                     📋 How to generate deliverables
+│   ├── upgrade-report-workflow.md      (~400 lines)
+│   ├── detection-script-workflow.md    (~400 lines)
+│   └── app-update-preview-workflow.md  (~400 lines)
 │
-├── QUICK-REFERENCE.md            ⚡ Fast command lookup
-│   └── Common commands, troubleshooting, quick facts
+├── examples/                      💡 Real usage scenarios
+│   ├── simple-upgrade.md               (~350 lines)
+│   ├── multi-hop-upgrade.md            (~300 lines)
+│   ├── detection-script-only.md        (~250 lines)
+│   └── preview-only.md                 (~100 lines)
 │
-└── USAGE-GUIDE.md                📚 Comprehensive how-to 
-    └── Detailed workflows, best practices, examples
+├── reference/                     📖 Quick reference
+│   └── reference-files-package.md      (~250 lines)
+│
+├── version-guides/                📋 Rails version details
+├── templates/                     📄 Report templates
+└── detection-scripts/             🔍 Pattern definitions
 ```
+
+**Total:** ~2,750 lines of well-organized content (was 1,066 lines monolithic)
 
 ### Version-Specific Guides
 
@@ -589,6 +600,27 @@ Before starting any upgrade:
 
 ## 🎯 What You Get from This Skill
 
+### How Deliverables Are Generated
+
+The skill uses dedicated workflow files to generate each deliverable:
+
+1. **Upgrade Report** → Generated using `workflows/upgrade-report-workflow.md`
+   - Provides step-by-step template population instructions
+   - Ensures consistent, high-quality reports
+   - Includes custom code detection patterns
+
+2. **Detection Script** → Generated using `workflows/detection-script-workflow.md`
+   - Converts YAML patterns to bash code
+   - Creates automated scanning scripts
+   - Includes pattern validation
+
+3. **App:Update Preview** → Generated using `workflows/app-update-preview-workflow.md`
+   - Identifies config files to update
+   - Generates before/after comparisons
+   - Integrates with Neovim for live updates
+
+Each workflow file is loaded on-demand, ensuring Claude has detailed, focused instructions for generating that specific deliverable.
+
 ### Comprehensive Upgrade Report (50+ pages)
 
 Every upgrade request generates a detailed report:
@@ -1004,16 +1036,7 @@ https://discord.gg/rails
 
 ## 🔄 Version History
 
-### Version 4.0 (November 1, 2025)
-
-**What's New:**
-- ✨ Unified skill structure (all versions in one skill)
-- ✨ Rails 8.1.1 support added
-- ✨ Enhanced Neovim integration with buffer management
-- ✨ Improved custom code detection
-- ✨ Multi-hop upgrade planning
-- ✨ Comprehensive testing checklists
-- ✨ Reference materials section
+### Version 1.0 (November 1, 2025)
 
 **Coverage:**
 - Rails 7.0.x → 7.1.6
