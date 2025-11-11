@@ -16,38 +16,39 @@ description: Analyzes Rails applications and generates comprehensive upgrade rep
 
 ## Core Functionality
 
-This skill helps users upgrade Rails applications by generating three comprehensive deliverables:
+This skill helps users upgrade Rails applications through a sequential three-step process:
 
-### 1. Comprehensive Upgrade Report
-- Breaking changes analysis with OLD vs NEW code examples
-- Custom code warnings with ⚠️ flags
-- Step-by-step migration plan
-- Testing checklist and rollback plan
-
-### 2. Breaking Changes Detection Script
-- Executable bash script
-- Finds issues in user's codebase with file:line references
+### Step 1: Breaking Changes Detection Script
+- Claude generates executable bash script tailored to the specific upgrade
+- Script scans user's codebase for breaking changes
+- Finds issues with file:line references
 - Generates findings report (TXT file)
 - Runs in < 30 seconds
 - Lists affected files for Neovim integration
 
-### 3. app:update Preview Report
-- Shows exact configuration file changes (OLD vs NEW)
-- Lists new files to be created
-- Impact assessment (HIGH/MEDIUM/LOW)
-- Neovim buffer list ready
+### Step 2: User Runs Script & Shares Findings
+- User executes the detection script in their project directory
+- Script outputs `rails_{version}_upgrade_findings.txt`
+- User shares findings report back with Claude
+
+### Step 3: Claude Generates Reports Based on Actual Findings
+- **Comprehensive Upgrade Report**: Breaking changes analysis with OLD vs NEW code examples, custom code warnings with ⚠️ flags, step-by-step migration plan, testing checklist and rollback plan
+- **app:update Preview Report**: Shows exact configuration file changes (OLD vs NEW), lists new files to be created, impact assessment (HIGH/MEDIUM/LOW), Neovim buffer list ready
 
 **User Benefits:**
 - ⏱️ Saves 2-3 hours per upgrade (automated detection)
 - 🎯 90%+ accuracy in finding breaking changes
 - 📋 Clear file:line references for every issue
-- 🚀 50% faster upgrades overall
+- 🚀 Reports based on ACTUAL detected issues, not hypothetical
+- 📊 50% faster upgrades overall
 
 ---
 
 ## Trigger Patterns
 
 Claude should activate this skill when user says:
+
+**Initial Upgrade Requests (Generate Detection Script):**
 - "Upgrade my Rails app to [version]"
 - "Help me upgrade from Rails [x] to [y]"
 - "What breaking changes are in Rails [version]?"
@@ -56,9 +57,20 @@ Claude should activate this skill when user says:
 - "Analyze my Rails app for upgrade"
 - "Create a detection script for Rails [version]"
 - "Generate a breaking changes script"
+- "Find breaking changes in my code"
+
+**After Script Execution (Generate Reports):**
+- "Here's my findings.txt"
+- "I ran the script, here are the results"
+- "The detection script found [X] issues"
+- "Can you analyze these findings?"
+- *User shares/uploads findings.txt file*
+
+**Specific Report Requests (Only After Findings Shared):**
 - "Show me the app:update changes"
 - "Preview configuration changes for Rails [version]"
-- "Find breaking changes in my code"
+- "Generate the upgrade report"
+- "Create the comprehensive report"
 
 ---
 
@@ -158,41 +170,63 @@ When user requests an upgrade, follow this workflow:
 2. Store: current_version, target_version, project_type, project_root
 ```
 
-### Step 2: Load Resources
+### Step 2: Load Detection Script Resources
+```
+1. Read: detection-scripts/patterns/rails-{VERSION}-patterns.yml
+2. Read: detection-scripts/templates/detection-script-template.sh
+3. Read: workflows/detection-script-workflow.md (for generation instructions)
+```
+
+### Step 3: Generate Detection Script
+```
+1. Follow workflow in detection-script-workflow.md
+2. Generate version-specific bash script
+3. Deliver script to user
+4. Instruct user to run script and share findings.txt
+```
+
+### Step 4: Wait for User to Run Script
+```
+User runs: ./detect_rails_{version}_breaking_changes.sh
+Script outputs: rails_{version}_upgrade_findings.txt
+User shares findings back with Claude
+```
+
+### Step 5: Load Report Generation Resources
 ```
 1. Read: templates/upgrade-report-template.md
 2. Read: version-guides/upgrade-{FROM}-to-{TO}.md
-3. Read: detection-scripts/patterns/rails-{VERSION}-patterns.yml
-4. Read: detection-scripts/templates/detection-script-template.sh
-5. Read: templates/app-update-preview-template.md
+3. Read: templates/app-update-preview-template.md
+4. Read: workflows/upgrade-report-workflow.md
+5. Read: workflows/app-update-preview-workflow.md
 ```
 
-### Step 3: Analyze Project
+### Step 6: Analyze User's Actual Findings
 ```
-1. Read user's actual config files
-2. Detect custom code and configurations
-3. Flag customizations with ⚠️ warnings
+1. Parse the findings.txt file
+2. Extract detected breaking changes and affected files
+3. Read user's actual config files for context
+4. Identify custom code patterns from findings
 ```
 
-### Step 4: Generate All Three Deliverables
+### Step 7: Generate Reports Based on Findings
 
-**Deliverable #1: Upgrade Report**
+**Deliverable #1: Comprehensive Upgrade Report**
 - **Workflow:** See `workflows/upgrade-report-workflow.md`
-- **Quick:** Load template, populate variables, add breaking changes, deliver report
+- **Input:** Actual findings from script + version guide data
+- **Output:** Report with real code examples from user's project
 
-**Deliverable #2: Detection Script**
-- **Workflow:** See `workflows/detection-script-workflow.md`
-- **Quick:** Load pattern file, generate bash checks, populate template, deliver script
-
-**Deliverable #3: app:update Preview**
+**Deliverable #2: app:update Preview**
 - **Workflow:** See `workflows/app-update-preview-workflow.md`
-- **Quick:** Load template, generate diffs, create Neovim file list, deliver preview
+- **Input:** Actual config files + findings
+- **Output:** Preview with real file paths and changes
 
-### Step 5: Present Deliverables
+### Step 8: Present Reports
 ```
-1. Present all three deliverables in order
-2. Explain next steps
-3. Offer interactive help with Neovim (if available)
+1. Present Comprehensive Upgrade Report first
+2. Present app:update Preview Report second
+3. Explain next steps
+4. Offer interactive help with Neovim (if available)
 ```
 
 ---
@@ -201,9 +235,13 @@ When user requests an upgrade, follow this workflow:
 
 Load workflow files when you need detailed instructions:
 
-**Always Load Before Generating:**
-- `workflows/upgrade-report-workflow.md` - Before creating upgrade reports
+**Step 1 - Load Before Generating Detection Script:**
 - `workflows/detection-script-workflow.md` - Before creating detection scripts
+
+**Step 2 - User Runs Script (No Claude action needed)**
+
+**Step 3 - Load Before Generating Reports (After receiving findings):**
+- `workflows/upgrade-report-workflow.md` - Before creating upgrade reports
 - `workflows/app-update-preview-workflow.md` - Before creating previews
 
 **Load When User Needs Examples:**
@@ -223,11 +261,32 @@ Load workflow files when you need detailed instructions:
 
 Before delivering, verify:
 
-**For All Deliverables:**
+**For Detection Script:**
 - [ ] All {PLACEHOLDERS} replaced with actual values
-- [ ] No generic examples - used user's actual code
-- [ ] Custom code warnings included (⚠️)
-- [ ] All three deliverables generated (unless user asked for specific one)
+- [ ] Patterns match target Rails version
+- [ ] Script includes all breaking changes from pattern file
+- [ ] File paths use user's actual project structure
+- [ ] User instructions are clear
+
+**After User Runs Script (Before Generating Reports):**
+- [ ] Received and parsed findings.txt from user
+- [ ] Identified all detected breaking changes
+- [ ] Collected affected file paths
+- [ ] Noted custom code warnings from findings
+
+**For Comprehensive Upgrade Report:**
+- [ ] All {PLACEHOLDERS} replaced with actual values
+- [ ] Used ACTUAL findings from script (not generic examples)
+- [ ] Breaking changes section includes real file:line references
+- [ ] Custom code warnings based on actual detected issues
+- [ ] Code examples use user's actual code from affected files
+- [ ] Next steps clearly outlined
+
+**For app:update Preview:**
+- [ ] All {PLACEHOLDERS} replaced with actual values
+- [ ] File list matches user's actual config files
+- [ ] Diffs based on real current config vs target version
+- [ ] Neovim buffer list includes only affected files
 - [ ] Next steps clearly outlined
 
 **Detailed Checklist:** See `reference/quality-checklist.md`
@@ -239,12 +298,19 @@ Before delivering, verify:
 ### Pattern 1: Full Upgrade Request
 **User says:** "Upgrade my Rails app to 8.1"
 
-**Action:**
-1. Load: `workflows/upgrade-report-workflow.md`
-2. Load: `workflows/detection-script-workflow.md`
+**Action - Phase 1 (Generate Script):**
+1. Load: `workflows/detection-script-workflow.md`
+2. Generate detection script
+3. Deliver script with instructions to run it
+4. Wait for user to share findings.txt
+
+**Action - Phase 2 (Generate Reports):**
+1. Parse findings.txt
+2. Load: `workflows/upgrade-report-workflow.md`
 3. Load: `workflows/app-update-preview-workflow.md`
-4. Generate all three deliverables
-5. Reference: `examples/simple-upgrade.md` for structure
+4. Generate Comprehensive Upgrade Report (using actual findings)
+5. Generate app:update Preview (using actual findings)
+6. Reference: `examples/simple-upgrade.md` for structure
 
 ### Pattern 2: Multi-Hop Request
 **User says:** "Help me upgrade from Rails 7.0 to 8.1"
@@ -252,7 +318,8 @@ Before delivering, verify:
 **Action:**
 1. Explain sequential requirement
 2. Reference: `examples/multi-hop-upgrade.md`
-3. Generate deliverables for each hop
+3. Follow Pattern 1 for FIRST hop (7.0 → 7.1)
+4. After first hop complete, repeat for next hops
 
 ### Pattern 3: Detection Script Only
 **User says:** "Create a detection script for Rails 8.0"
@@ -261,25 +328,39 @@ Before delivering, verify:
 1. Load: `workflows/detection-script-workflow.md`
 2. Generate detection script only
 3. Reference: `examples/detection-script-only.md`
+4. Do NOT generate reports yet (wait for findings)
 
-### Pattern 4: Preview Only
+### Pattern 4: User Returns with Findings
+**User says:** "Here's my findings.txt" or shares script output
+
+**Action:**
+1. Parse findings.txt
+2. Load: `workflows/upgrade-report-workflow.md`
+3. Load: `workflows/app-update-preview-workflow.md`
+4. Generate Comprehensive Upgrade Report
+5. Generate app:update Preview
+
+### Pattern 5: Preview Only (After Findings Shared)
 **User says:** "Show me the app:update changes for Rails 7.2"
 
 **Action:**
-1. Load: `workflows/app-update-preview-workflow.md`
-2. Generate preview report only
-3. Reference: `examples/preview-only.md`
+1. Check if user has shared findings
+2. If yes: Load `workflows/app-update-preview-workflow.md` and generate
+3. If no: Ask user to run detection script first
+4. Reference: `examples/preview-only.md`
 
 ---
 
 ## Key Principles
 
-1. **Always Generate 3 Deliverables** (unless user asks for specific one)
-2. **Always Read User's Actual Files** (no generic examples)
-3. **Always Flag Custom Code** (with ⚠️ warnings)
-4. **Always Use Templates** (for consistency)
-5. **Always Check Quality** (before delivery)
-6. **Load Workflows as Needed** (don't hold everything in memory)
+1. **Always Generate Detection Script First** (unless user only wants reports and has findings)
+2. **Wait for User to Run Script** (reports depend on actual findings)
+3. **Always Use Actual Findings** (no generic examples in reports)
+4. **Always Flag Custom Code** (with ⚠️ warnings based on detected issues)
+5. **Always Use Templates** (for consistency)
+6. **Always Check Quality** (before delivery)
+7. **Load Workflows as Needed** (don't hold everything in memory)
+8. **Sequential Process is Critical** (script → findings → reports)
 
 ---
 
@@ -319,9 +400,12 @@ rails-upgrade-assistant/
 
 A successful upgrade assistance session:
 
-✅ Generated all 3 deliverables (unless user asked for specific one)  
-✅ Used user's actual code (not generic examples)  
-✅ Flagged all custom code with ⚠️ warnings  
+✅ Generated detection script (Phase 1)  
+✅ User ran script and shared findings.txt (Phase 2)  
+✅ Generated Comprehensive Upgrade Report using actual findings (Phase 3)  
+✅ Generated app:update Preview using actual findings (Phase 3)  
+✅ Used user's actual code from findings (not generic examples)  
+✅ Flagged all custom code with ⚠️ warnings based on detected issues  
 ✅ Provided clear next steps  
 ✅ Offered interactive help (if Neovim available)  
 
