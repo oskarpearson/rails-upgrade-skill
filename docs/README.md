@@ -22,7 +22,7 @@ copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 # 📚 Rails Upgrade Assistant Skill
 
 **Version:** 1.0
-**Created:** November 1, 2025  
+**Created:** November 1, 2025
 **Rails Support:** 7.0.x through 8.1.1
 
 ---
@@ -37,13 +37,13 @@ This is a **unified, intelligent Rails upgrade skill** that helps you upgrade Ru
 
 A comprehensive Claude skill that:
 
-- ✅ **Analyzes** your Rails project automatically using Rails MCP tools
-- ✅ **Detects** your current version and target version
+- ✅ **Analyzes** your Rails project directly using Cursor's native tools
+- ✅ **Detects** your current version and target version automatically
 - ✅ **Plans** single-hop or multi-hop upgrade paths
-- ✅ **Identifies** breaking changes specific to YOUR code
+- ✅ **Identifies** breaking changes specific to YOUR code in real-time
 - ✅ **Preserves** your custom configurations with ⚠️ warnings
-- ✅ **Generates** comprehensive upgrade reports (50+ pages)
-- ✅ **Updates** files interactively via Neovim (optional)
+- ✅ **Generates** comprehensive upgrade reports with actual code examples
+- ✅ **Works instantly** - zero setup required in Cursor
 - ✅ **Based on** official Rails CHANGELOGs from GitHub
 
 ---
@@ -55,22 +55,22 @@ A comprehensive Claude skill that:
 ```
 rails-upgrade-assistant/
 │
-├── SKILL.md (300 lines)          ⭐ Compact entry point
+├── SKILL.md                       ⭐ Main entry point
 │   └── Overview, triggers, file references
 │
 ├── workflows/                     📋 How to generate deliverables
-│   ├── upgrade-report-workflow.md      (~400 lines)
-│   ├── detection-script-workflow.md    (~400 lines)
-│   └── app-update-preview-workflow.md  (~400 lines)
+│   ├── upgrade-report-workflow.md
+│   ├── direct-analysis-workflow.md
+│   └── app-update-preview-workflow.md
 │
 ├── examples/                      💡 Real usage scenarios
-│   ├── simple-upgrade.md               (~350 lines)
-│   ├── multi-hop-upgrade.md            (~300 lines)
-│   ├── detection-script-only.md        (~250 lines)
-│   └── preview-only.md                 (~100 lines)
+│   ├── simple-upgrade.md
+│   ├── multi-hop-upgrade.md
+│   ├── direct-analysis-only.md
+│   └── preview-only.md
 │
 ├── reference/                     📖 Quick reference
-│   └── reference-files-package.md      (~250 lines)
+│   └── reference-files-package.md
 │
 ├── version-guides/                📋 Rails version details
 ├── templates/                     📄 Report templates
@@ -99,7 +99,7 @@ reference/
 └── testing-checklist.md              Comprehensive testing
 ```
 
-**Total Package Size:** ~220 KB  
+**Total Package Size:** ~220 KB
 **Total Documentation:** ~70 pages
 
 ---
@@ -115,22 +115,7 @@ reference/
 3. Upload the entire `rails-upgrade-assistant/` folder
 4. Or upload just `SKILL.md` for minimal setup
 
-### Step 2: Verify MCP Connection
-
-**Required: Rails MCP Server**
-
-A Ruby implementation of a Model Context Protocol (MCP) server for Rails projects. This server allows LLMs (Large Language Models) to interact with Rails projects through the Model Context Protocol, providing capabilities for code analysis, exploration, and development assistance.
-
-[Install instructions](https://github.com/maquina-app/rails-mcp-server)
-
-
-**Optional: Neovim MCP Server** (for interactive file updates)
-
-A Ruby implementation of a Model Context Protocol (MCP) server for Neovim. This server allows LLMs (Large Language Models) to interact with Neovim through the Model Context Protocol, providing capabilities to query buffers and perform operations within the editor.
-
-[Install instructions](https://github.com/maquina-app/nvim-mcp-server)
-
-### Step 3: Start Upgrading!
+### Step 2: Start Upgrading!
 
 ```
 Say to Claude:
@@ -187,12 +172,12 @@ If you request a multi-hop upgrade (e.g., 7.0 → 8.1), Claude will:
 "Upgrade my Rails app from 7.2 to 8.0"
 ```
 
-**Claude will:**
+**The agent will:**
 
-1. Call `railsMcpServer:project_info` to detect current version
-2. Load appropriate version guide(s)
-3. Analyze your project files for custom code
-4. Identify breaking changes affecting YOUR code
+1. Read your Gemfile to detect current Rails version
+2. Analyze your project structure and configuration
+3. Use fast Grep searches to find breaking change patterns
+4. Read affected files for full context
 5. Generate comprehensive upgrade report with:
    - Executive summary
    - Breaking changes (HIGH/MEDIUM/LOW priority)
@@ -206,45 +191,7 @@ If you request a multi-hop upgrade (e.g., 7.0 → 8.1), Claude will:
 
 ---
 
-### Mode 2: Interactive with Neovim (Advanced)
-
-**Best for:** Experienced users who want live file updates
-
-**Requirements:**
-
-- Files open in Neovim
-- Neovim socket at `/tmp/nvim-{project_name}.sock`
-- Neovim MCP server connected
-
-**Usage:**
-
-```
-"Upgrade to Rails 8.1 in interactive mode with project 'myapp'"
-```
-
-**Claude will:**
-
-1. Generate full upgrade report (like Mode 1)
-2. Check which files are open in Neovim via `nvimMcpServer:get_project_buffers`
-3. For each file needing changes:
-   - Show current code (OLD)
-   - Show proposed code (NEW)
-   - Ask: "Should I update this file?"
-   - If yes: Use `nvimMcpServer:update_buffer` to update
-   - If no: Skip and note you can apply manually
-4. Verify each change applied successfully
-5. Summarize all changes made
-
-**Safety features:**
-- ✅ Shows changes BEFORE applying
-- ✅ Requires approval for each file
-- ✅ Checks buffer availability
-- ✅ Never modifies files you haven't opened
-- ✅ Preserves custom configurations
-
----
-
-### Mode 3: Query-Specific (Quick Answers)
+### Mode 2: Query-Specific (Quick Answers)
 
 **Best for:** Specific questions about changes
 
@@ -269,86 +216,75 @@ If you request a multi-hop upgrade (e.g., 7.0 → 8.1), Claude will:
 
 ---
 
-## 🔧 Rails MCP Tools Integration
+## 🔧 How the Skill Works
 
-The skill automatically uses these Rails MCP tools to understand YOUR project:
+The skill uses Cursor's native tools for fast, local analysis:
 
-### 1. **project_info** - Detect Version & Structure
+### 1. **Read** - File Operations
 
-```javascript
-railsMcpServer:project_info
 ```
-
-Extracts:
-- Current Rails version from Gemfile
-- Project structure (API-only? Full stack?)
-- Rails root directory
-- Ruby version
-
-### 2. **list_files** - Find Relevant Files
-
-```javascript
-railsMcpServer:list_files
-directory: "config"
-pattern: "*.rb"
-```
-
-Lists:
-- Configuration files
-- Models, controllers, jobs
-- Initializers
-- Custom middleware
-
-### 3. **get_file** - Read & Analyze
-
-```javascript
-railsMcpServer:get_file
-path: "config/application.rb"
+Read("Gemfile")
+Read("config/application.rb")
 ```
 
 Reads files to:
-- Detect custom configurations
-- Find deprecated patterns
-- Identify custom middleware
-- Check for manual overrides
+- Extract Rails version from Gemfile
+- Detect project structure (API-only? Full stack?)
+- Find custom configurations
+- Check load_defaults version
 
-### 4. **analyze_models** - Understand Data Layer
+### 2. **Grep** - Fast Pattern Searching
 
-```javascript
-railsMcpServer:analyze_models
-model_name: "User"
+```
+Grep("cache_classes", glob: "config/**/*.rb", -C: 2)
 ```
 
-Analyzes:
-- Model associations
-- Validations
-- Custom scopes
-- Callbacks
+Searches for:
+- Breaking change patterns (ripgrep-powered, extremely fast)
+- Deprecated configurations
+- Custom middleware declarations
+- Redis configurations
+- Asset pipeline customizations
 
-### 5. **get_schema** - Database Structure
+**Advantage:** Can run multiple Grep operations in parallel for 5-10x speed boost!
 
-```javascript
-railsMcpServer:get_schema
-table_name: "users"
+### 3. **Glob** - Find Files by Pattern
+
+```
+Glob("app/models/**/*.rb")
+Glob("config/initializers/**/*.rb")
 ```
 
-Reviews:
-- Database tables
-- Column types
-- Foreign keys
-- Indexes
+Lists:
+- All models for analysis
+- Custom initializers
+- Middleware files
+- Any file pattern needed
 
-### 6. **get_routes** - Application Endpoints
+### 4. **LS** - Directory Listings
 
-```javascript
-railsMcpServer:get_routes
+```
+LS("/")
+LS("config/environments")
 ```
 
-Maps:
-- All HTTP routes
-- Controllers and actions
-- Custom routes
-- Middleware chains
+Verifies:
+- Rails project structure (app/, config/, db/, lib/)
+- Environment files present
+- Project organization
+
+### 5. **Shell** - Execute Commands
+
+```
+Shell("bin/rails routes")
+Shell("bin/rails runner 'puts User.column_names'")
+```
+
+Gets:
+- Application routes
+- Model information
+- Database schema details
+- Any Rails command output
 
 ---
 
@@ -366,7 +302,7 @@ Maps:
 4. **Execute:** Follow the step-by-step guide in version guide (4-8 hours)
 5. **Test:** Use testing checklist from `reference/testing-checklist.md` (2-3 hours)
 
-**Time Investment:** 55 minutes prep + 6-11 hours execution  
+**Time Investment:** 55 minutes prep + 6-11 hours execution
 **Outcome:** Successful upgrade with full understanding
 
 ---
@@ -383,7 +319,7 @@ Maps:
 4. **Execute:** Apply changes using report as guide (3-6 hours)
 5. **Test:** Run test suite and fix issues (1-2 hours)
 
-**Time Investment:** 20 minutes prep + 4-8 hours execution  
+**Time Investment:** 20 minutes prep + 4-8 hours execution
 **Outcome:** Efficient upgrade with minimal friction
 
 ---
@@ -400,7 +336,7 @@ Maps:
 4. **Execute:** Complete each hop sequentially (1-3 weeks)
 5. **Test:** Full testing between each hop (2-4 hours per hop)
 
-**Time Investment:** 30 minutes planning + 1-3 weeks execution  
+**Time Investment:** 30 minutes planning + 1-3 weeks execution
 **Outcome:** Safe multi-version upgrade with clear progression
 
 ---
@@ -417,7 +353,7 @@ Maps:
 4. **Check:** Custom code warnings in report (10 min)
 5. **Decide:** Create timeline and resource plan (10 min)
 
-**Time Investment:** 45 minutes  
+**Time Investment:** 45 minutes
 **Outcome:** Clear understanding of scope, risk, and timeline
 
 ---
@@ -582,16 +518,15 @@ Before starting any upgrade:
 
 ### Important (SHOULD DO)
 
-- [ ] **Rails MCP server connected** and tested
 - [ ] **Current version confirmed** (run `bin/rails -v`)
 - [ ] **Dependencies reviewed** (check for gem compatibility)
 - [ ] **Custom code documented** (know what you've customized)
 - [ ] **Monitoring dashboards ready** (watch performance post-deploy)
 - [ ] **Communication plan** (how to notify users if issues arise)
+- [ ] **Project accessible in Cursor** (agent can read all files)
 
 ### Optional (NICE TO HAVE)
 
-- [ ] **Neovim MCP for interactive mode** (if using advanced features)
 - [ ] **Read full version guide** (for your specific upgrade path)
 - [ ] **Review deprecation warnings** in current version
 - [ ] **Plan time for optimization** (use new features, improve code)
@@ -604,22 +539,23 @@ Before starting any upgrade:
 
 The skill uses dedicated workflow files to generate each deliverable:
 
-1. **Upgrade Report** → Generated using `workflows/upgrade-report-workflow.md`
+1. **Direct Analysis** → Uses `workflows/direct-analysis-workflow.md`
+   - Analyzes project in real-time using Cursor tools
+   - Converts YAML patterns to parallel Grep queries
+   - Returns results in < 10 seconds
+
+2. **Upgrade Report** → Generated using `workflows/upgrade-report-workflow.md`
    - Provides step-by-step template population instructions
    - Ensures consistent, high-quality reports
    - Includes custom code detection patterns
-
-2. **Detection Script** → Generated using `workflows/detection-script-workflow.md`
-   - Converts YAML patterns to bash code
-   - Creates automated scanning scripts
-   - Includes pattern validation
+   - Uses actual code from your project
 
 3. **App:Update Preview** → Generated using `workflows/app-update-preview-workflow.md`
    - Identifies config files to update
    - Generates before/after comparisons
-   - Integrates with Neovim for live updates
+   - Shows exact diffs with OLD vs NEW code
 
-Each workflow file is loaded on-demand, ensuring Claude has detailed, focused instructions for generating that specific deliverable.
+Each workflow file is loaded on-demand, ensuring the agent has detailed, focused instructions for generating that specific deliverable.
 
 ### Comprehensive Upgrade Report (50+ pages)
 
@@ -736,22 +672,6 @@ Address all HIGH priority breaking changes before touching MEDIUM or LOW priorit
 
 ## 🆘 Common Issues
 
-### "Rails MCP server not connected"
-
-**Solution:**
-
-```bash
-# Verify installation
-npm list -g rails-mcp-server
-
-# Reinstall if needed
-npm install -g rails-mcp-server
-
-# Check Claude configuration
-cat ~/.config/Claude/config.json
-# Verify "rails" is in mcpServers
-```
-
 ### "Can't detect my Rails version"
 
 **Solution:**
@@ -759,17 +679,13 @@ cat ~/.config/Claude/config.json
 1. Ensure you're in Rails project root
 2. Verify Gemfile exists
 3. Check `gem 'rails'` line in Gemfile
-4. Manually tell Claude: "My Rails version is X.Y.Z"
+4. Manually tell the agent: "My Rails version is X.Y.Z"
 
-### "Interactive mode not working"
+### "No Gemfile found"
 
 **Solution:**
 
-1. Neovim must be running
-2. Check socket exists: `ls /tmp/nvim-*.sock`
-3. Verify project name matches socket name
-4. Try report-only mode first
-5. Check Neovim MCP server installation
+The agent needs a Gemfile to detect Rails version. If your project has a non-standard structure, tell the agent: "My Gemfile is located at [path]"
 
 ### "Too many custom code warnings"
 
@@ -1087,11 +1003,11 @@ https://discord.gg/rails
 
 ### Your Next Steps:
 
-1. **Install the skill** in your Claude Project
-2. **Verify Rails MCP** server is connected
+1. **Install the skill** in your Claude Project (upload to Knowledge)
+2. **Open your Rails project** in Cursor
 3. **Choose your path** from the Learning Paths section
-4. **Say to Claude:** `"Upgrade my Rails app to [version]"`
-5. **Review the report** carefully
+4. **Say:** `"Upgrade my Rails app to [version]"`
+5. **Review the report** carefully (generated in seconds!)
 6. **Follow the steps** one by one
 7. **Test thoroughly** at each stage
 8. **Deploy with confidence**
@@ -1123,8 +1039,7 @@ All Rails upgrade information is based on official Rails CHANGELOGs from the Rai
 
 **Created with:**
 - Official Rails CHANGELOGs from GitHub
-- Rails MCP server for intelligent project analysis
-- Neovim MCP server for interactive file updates
+- Cursor's native tools for fast, local analysis
 - Rails diff data from railsdiff.org
 
 ---
@@ -1162,7 +1077,7 @@ Found this skill helpful? Have suggestions for improvement?
 
 ---
 
-**README Version:** 1.0 
-**Last Updated:** November 1, 2025  
-**Skill Version:** 1.0 
+**README Version:** 1.0
+**Last Updated:** November 1, 2025
+**Skill Version:** 1.0
 **Package Version:** Rails Upgrade Assistant

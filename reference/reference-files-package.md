@@ -12,6 +12,8 @@ Pattern files define breaking change patterns to search for in user code.
 ## Location
 `detection-scripts/patterns/rails-{VERSION}-patterns.yml`
 
+**Usage:** These YAML patterns are converted to Grep queries for real-time analysis (no bash script generation needed in primary workflow)
+
 ## Structure
 ```yaml
 version: "8.1"
@@ -65,10 +67,10 @@ breaking_changes:
 - [ ] Rollback plan included
 - [ ] Resources section completed
 
-### Detection Script Checklist
+### Direct Analysis Checklist
 
-- [ ] All patterns from YAML processed
-- [ ] Check blocks generated for each
+- [ ] All patterns from YAML converted to Grep queries
+- [ ] Grep searches executed in parallel
 - [ ] Variable names unique and valid
 - [ ] File list generation included
 - [ ] Total calculation included
@@ -78,10 +80,10 @@ breaking_changes:
 
 ### app:update Preview Checklist
 
-- [ ] User's actual config files read
+- [ ] User's actual config files read (using Read tool)
 - [ ] OLD vs NEW diffs shown
 - [ ] New files listed (if any)
-- [ ] Neovim file list generated
+- [ ] File list generated with descriptions
 - [ ] Impact levels assigned
 - [ ] Custom warnings included
 - [ ] All files accounted for
@@ -91,8 +93,8 @@ breaking_changes:
 - [ ] Generated requested deliverables
 - [ ] Sequential path explained (if multi-hop)
 - [ ] Next steps clearly outlined
-- [ ] Offer interactive help (if Neovim available)
-- [ ] No generic code examples
+- [ ] Offer agent-assisted updates (with user approval)
+- [ ] No generic code examples - all from user's actual project
 - [ ] Quality verified
 
 ---
@@ -123,8 +125,8 @@ breaking_changes:
 **Solution:**
 - Verify pattern file loaded successfully
 - Check YAML is valid
-- Ensure {HIGH_PRIORITY_CHECKS} placeholder was replaced
-- Review workflow: `workflows/detection-script-workflow.md`
+- Verify Grep patterns are executing correctly
+- Review workflow: `workflows/direct-analysis-workflow.md`
 
 ---
 
@@ -135,10 +137,10 @@ breaking_changes:
 **Cause:** Didn't read user's actual files
 
 **Solution:**
-- Must call: `railsMcpServer:get_file("config/application.rb")`
-- Must call: `railsMcpServer:get_file("config/environments/production.rb")`
-- Extract their actual code
-- Show THEIR code in OLD section, not generic
+- Must use: `Read("config/application.rb")`
+- Must use: `Read("config/environments/production.rb")`
+- Extract their actual code using Grep with context
+- Show THEIR code in OLD section, not generic examples
 
 ---
 
@@ -179,10 +181,10 @@ breaking_changes:
 **Cause:** Didn't check user's specific request
 
 **Solution:**
-- If user says "detection script": Generate ONLY script
+- If user says "find breaking changes": Do direct analysis, provide summary
 - If user says "preview": Generate ONLY preview
-- If user says "upgrade": Generate ALL THREE
-- Read request carefully
+- If user says "upgrade": Do full analysis and generate comprehensive report
+- Read request carefully and respond appropriately
 
 ---
 
@@ -200,16 +202,17 @@ breaking_changes:
 
 ---
 
-### Issue 8: Can't access MCP tools
+### Issue 8: Can't read project files
 
-**Symptom:** MCP tool calls fail
+**Symptom:** File read operations fail
 
-**Cause:** Tool not available or project not connected
+**Cause:** Files don't exist or wrong paths
 
 **Solution:**
-- Verify Rails MCP server connected
-- Check project switched correctly
-- Ensure files exist at specified paths
+- Verify project is open in Cursor
+- Check file exists: Use LS to list directory first
+- Verify file paths are correct (case-sensitive)
+- Use Glob to find files if path uncertain
 - Read error message for details
 
 ---

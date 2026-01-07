@@ -21,7 +21,7 @@
 Read the app:update preview template:
 
 ```
-railsMcpServer:get_file("templates/app-update-preview-template.md")
+Read("templates/app-update-preview-template.md")
 ```
 
 **Template Placeholders:**
@@ -89,7 +89,7 @@ Determine new files based on target version:
 Read the version guide to understand what changes:
 
 ```
-railsMcpServer:get_file("version-guides/upgrade-{FROM}-to-{TO}.md")
+Read("version-guides/upgrade-{FROM}-to-{TO}.md")
 ```
 
 Extract:
@@ -104,12 +104,14 @@ Extract:
 **Critical:** Must read user's ACTUAL files (not generic examples)
 
 ```
-railsMcpServer:get_file("config/application.rb")
-railsMcpServer:get_file("config/environments/production.rb")
-railsMcpServer:get_file("config/environments/development.rb")
-railsMcpServer:get_file("config/environments/test.rb")
-railsMcpServer:get_file("Gemfile")
-railsMcpServer:get_file("config/boot.rb")
+Read("config/application.rb")
+Read("config/environments/production.rb")
+Read("config/environments/development.rb")
+Read("config/environments/test.rb")
+Read("Gemfile")
+Read("config/boot.rb")
+
+(Note: Run all Read operations in parallel for best performance)
 ```
 
 This allows you to:
@@ -128,8 +130,8 @@ For each config file, create OLD vs NEW comparison.
 ```markdown
 ### config/application.rb
 
-**Impact:** 🔴 HIGH  
-**Action:** Modify existing file  
+**Impact:** 🔴 HIGH
+**Action:** Modify existing file
 **Reason:** Update load_defaults to Rails {TO_VERSION}
 
 #### Current Configuration (OLD)
@@ -137,7 +139,7 @@ For each config file, create OLD vs NEW comparison.
 module MyApp
   class Application < Rails::Application
     config.load_defaults 7.0
-    
+
     # User's custom configurations
     config.time_zone = "Pacific Time (US & Canada)"
     config.middleware.use CustomMiddleware
@@ -150,7 +152,7 @@ end
 module MyApp
   class Application < Rails::Application
     config.load_defaults 7.2  # <-- CHANGED
-    
+
     # User's custom configurations (preserved)
     config.time_zone = "Pacific Time (US & Canada)"
     config.middleware.use CustomMiddleware
@@ -164,7 +166,7 @@ end
 - Your custom configurations below will be preserved
 
 #### Custom Code Warning
-⚠️ **Custom middleware detected:** `CustomMiddleware`  
+⚠️ **Custom middleware detected:** `CustomMiddleware`
 ⚠️ Review that this middleware is compatible with Rails 7.2 defaults!
 ```
 
@@ -173,8 +175,8 @@ end
 ```markdown
 ### config/manifest.json (NEW)
 
-**Impact:** 🟡 MEDIUM  
-**Action:** Create new file  
+**Impact:** 🟡 MEDIUM
+**Action:** Create new file
 **Reason:** Rails 7.2 adds PWA (Progressive Web App) support
 
 #### File Contents
@@ -244,28 +246,21 @@ While reading config files, flag customizations:
 
 ---
 
-### Step 8: Generate Neovim File List
+### Step 8: Generate File List for Editing
 
-Create two formats for opening files:
+Create a simple list of files that need updates:
 
-**Format 1: Multi-line Neovim Command**
-```bash
-nvim \
-  config/application.rb \
-  config/environments/production.rb \
-  config/environments/development.rb \
-  config/boot.rb \
-  Gemfile
+**Format: Simple List with Descriptions**
+```
+Files to Update:
+- config/application.rb (load_defaults, SSL config)
+- config/environments/production.rb (force_ssl, show_exceptions)
+- config/environments/development.rb (cache config)
+- config/boot.rb (if needed)
+- Gemfile (Rails version)
 ```
 
-**Format 2: Simple List**
-```
-config/application.rb
-config/environments/production.rb
-config/environments/development.rb
-config/boot.rb
-Gemfile
-```
+**Note:** User can apply changes using Cursor's native editing or request agent assistance with StrReplace
 
 ---
 
@@ -299,8 +294,7 @@ Replace all template variables:
 | `{MODIFIED_FILES_SECTION}` | All file diffs | (generated diffs) |
 | `{NEW_FILES_SECTION}` | New files | (generated new files) |
 | `{REMOVED_FILES_SECTION}` | Removed files | (usually empty) |
-| `{NEOVIM_FILE_LIST_BACKSLASH}` | Multiline command | (Format 1) |
-| `{FILE_LIST}` | Simple list | (Format 2) |
+| `{FILE_LIST}` | Simple list | (generated file list) |
 
 ---
 
@@ -312,7 +306,7 @@ Before delivering, verify:
 - [ ] Every diff shows OLD vs NEW
 - [ ] Custom configurations flagged with ⚠️
 - [ ] New files have complete contents
-- [ ] Neovim file list generated
+- [ ] File list generated with clear descriptions
 - [ ] Impact levels assigned (HIGH/MEDIUM/LOW)
 - [ ] Counts are accurate
 
@@ -327,8 +321,8 @@ Present the complete preview report:
 ```markdown
 # Rails app:update Preview: 7.1 → 7.2
 
-**Generated:** November 2, 2025  
-**Project:** my-rails-app  
+**Generated:** November 2, 2025
+**Project:** my-rails-app
 **Report Type:** Configuration Changes Preview
 
 ---
@@ -356,22 +350,22 @@ Present the complete preview report:
 
 ---
 
-## 📝 Neovim Buffer List
+## 📝 Files to Update
 
-To update these files with Claude's help:
+You can update these files in several ways:
 
-\```bash
-nvim \
-  config/application.rb \
-  config/environments/production.rb \
-  Gemfile
+\```
+Files requiring changes:
+- config/application.rb
+- config/environments/production.rb
+- Gemfile
 \```
 
 ---
 
 ## ⚠️ Action Required
 
-Before running `rails app:update`:
+Before applying changes:
 
 1. ✅ Review all diffs carefully
 2. ✅ Check custom configurations
@@ -387,14 +381,15 @@ Choose your approach:
 
 ### Option A: Manual Updates (Recommended)
 1. Review each diff above
-2. Apply changes manually
+2. Apply changes manually in Cursor
 3. Test after each file
 4. Commit incrementally
 
-### Option B: Interactive Mode with Claude
-1. Open all files in Neovim
-2. Tell Claude: "Update these files interactively"
+### Option B: Agent-Assisted Updates
+1. Tell the agent: "Apply these changes to [filename]"
+2. Agent will use StrReplace to update files
 3. Review and test each update
+4. Approve before moving to next file
 
 ### Option C: Run rails app:update
 1. Run: `rails app:update`

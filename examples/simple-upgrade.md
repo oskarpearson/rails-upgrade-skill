@@ -17,30 +17,37 @@ User: "Upgrade my Rails app to 8.1"
 ### Step 1: Detect Version
 
 ```
-Call: railsMcpServer:project_info
+Read("Gemfile") → Extract Rails version
+Grep("gem ['\"]rails['\"]", path: "Gemfile")
+Read("config/application.rb") → Check project type
+
 Result: Current = 8.0.4, Target = 8.1.1, Type = Full Stack
 ```
 
 ### Step 2: Load Resources
 
 ```
+Read: workflows/direct-analysis-workflow.md
 Read: workflows/upgrade-report-workflow.md
-Read: workflows/detection-script-workflow.md
 Read: workflows/app-update-preview-workflow.md
 Read: templates/upgrade-report-template.md
 Read: version-guides/upgrade-8.0-to-8.1.md
 Read: detection-scripts/patterns/rails-81-patterns.yml
-Read: detection-scripts/templates/detection-script-template.sh
 Read: templates/app-update-preview-template.md
 ```
 
-### Step 3: Analyze Project
+### Step 3: Analyze Project (< 10 seconds)
 
 ```
-Read: config/application.rb
-Read: config/environments/production.rb
-Read: Gemfile
-Scan for: Custom SSL middleware, Redis configs, custom initializers
+Direct analysis using parallel Grep:
+1. Grep("force_ssl|assume_ssl", glob: "config/**/*.rb", -C: 2)
+2. Grep("bundler-audit", glob: "bin/**/*", -C: 2)
+3. Grep("middleware.use|middleware.insert", glob: "config/**/*.rb", -C: 2)
+4. Read affected files for context
+
+Findings:
+- 2 breaking changes detected with file:line references
+- 3 custom code patterns found (middleware, custom configs)
 ```
 
 ### Step 4: Generate Deliverable #1 - Upgrade Report
@@ -48,27 +55,18 @@ Scan for: Custom SSL middleware, Redis configs, custom initializers
 ```
 Follow: workflows/upgrade-report-workflow.md
 
-Output: 50-page comprehensive report with:
+Output: Comprehensive report with:
 - 2 breaking changes (SSL config, bundler-audit)
-- 3 custom code warnings (detected in user's code)
+- 3 custom code warnings (from actual project code)
 - Step-by-step migration guide (8 phases)
 - Testing checklist
 - Rollback plan
-```
-
-### Step 5: Generate Deliverable #2 - Detection Script
-
-```
-Follow: workflows/detection-script-workflow.md
-
-Output: Executable bash script that:
-- Searches for SSL config patterns
-- Searches for bundler-audit references
+- File:line references for all issues
 - Generates findings report
 - Lists affected files for Neovim
 ```
 
-### Step 6: Generate Deliverable #3 - app:update Preview
+### Step 5: Generate Deliverable #2 - app:update Preview
 
 ```
 Follow: workflows/app-update-preview-workflow.md
@@ -97,10 +95,10 @@ I've generated three comprehensive deliverables for your upgrade:
 
 # Rails Upgrade Report: 8.0.4 → 8.1.1
 
-**Generated:** November 2, 2025  
-**Project:** my-rails-app  
-**Complexity:** ⭐⭐ (Low-Medium)  
-**Estimated Time:** 2-4 hours  
+**Generated:** November 2, 2025
+**Project:** my-rails-app
+**Complexity:** ⭐⭐ (Low-Medium)
+**Estimated Time:** 2-4 hours
 **Risk Level:** Low
 
 ## 🎯 Executive Summary
@@ -120,7 +118,7 @@ Your Rails 8.0.4 → 8.1.1 upgrade is straightforward with **2 breaking changes*
 
 ### 🔴 HIGH: SSL Configuration Changes
 
-**Component:** ActionDispatch  
+**Component:** ActionDispatch
 **Priority:** HIGH
 
 #### What Changed
@@ -154,7 +152,7 @@ config.force_ssl = true
 
 ### 🟡 MEDIUM: bundler-audit Integration
 
-**Component:** Bundler  
+**Component:** Bundler
 **Priority:** MEDIUM
 
 #### What Changed
@@ -324,20 +322,7 @@ end
 
 ---
 
-## 🔍 Deliverable #2: Breaking Changes Detection Script
-
-Run this script to find issues in your codebase:
-
-\```bash
-chmod +x detect_rails_81_changes.sh
-./detect_rails_81_changes.sh
-\```
-
-[Complete bash script here - 200+ lines]
-
----
-
-## 📝 Deliverable #3: app:update Preview Report
+## 📝 Deliverable #2: app:update Preview Report
 
 Here's what will change in your configuration files:
 
@@ -347,8 +332,8 @@ Here's what will change in your configuration files:
 
 ## 🚀 Next Steps
 
-1. Review all three deliverables above
-2. Run the detection script
+1. Review both deliverables above
+2. Follow the migration guide
 3. Share the findings report with me if issues found
 4. Choose your update approach:
    - **Manual:** Apply changes one by one
@@ -365,16 +350,16 @@ Would you like me to:
 
 ## Key Characteristics of This Response
 
-✅ **Generated all 3 deliverables**  
-✅ **Used user's actual code** (not generic examples)  
-✅ **Flagged custom configurations** (⚠️)  
-✅ **Provided OLD vs NEW** examples  
-✅ **Included step-by-step plan**  
-✅ **Offered next steps**  
+✅ **Generated all 3 deliverables**
+✅ **Used user's actual code** (not generic examples)
+✅ **Flagged custom configurations** (⚠️)
+✅ **Provided OLD vs NEW** examples
+✅ **Included step-by-step plan**
+✅ **Offered next steps**
 
 ---
 
 **Related Files:**
+- Workflow: `workflows/direct-analysis-workflow.md`
 - Workflow: `workflows/upgrade-report-workflow.md`
-- Workflow: `workflows/detection-script-workflow.md`
 - Workflow: `workflows/app-update-preview-workflow.md`

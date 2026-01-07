@@ -16,15 +16,15 @@ rails-upgrade-assistant/
 ├── SKILL.md (300 lines)               ← Entry point, references
 │
 ├── workflows/ (3 files)               ← HOW to generate
-│   ├── upgrade-report-workflow.md         (~400 lines)
-│   ├── detection-script-workflow.md       (~400 lines)
-│   └── app-update-preview-workflow.md     (~400 lines)
+│   ├── upgrade-report-workflow.md
+│   ├── direct-analysis-workflow.md
+│   └── app-update-preview-workflow.md
 │
 ├── examples/ (4 files)                ← WHAT output looks like
-│   ├── simple-upgrade.md                  (~350 lines)
-│   ├── multi-hop-upgrade.md               (~300 lines)
-│   ├── detection-script-only.md           (~250 lines)
-│   └── preview-only.md                    (~100 lines)
+│   ├── simple-upgrade.md
+│   ├── multi-hop-upgrade.md
+│   ├── direct-analysis-only.md
+│   └── preview-only.md
 │
 ├── reference/ (1 package)             ← QUICK help
 │   └── reference-files-package.md         (~250 lines)
@@ -39,10 +39,10 @@ rails-upgrade-assistant/
 #### For Users
 
 **1. Faster Responses**
-- Claude loads only relevant files for your request
-- Simple requests: Loads ~15-24% of total content
-- Complex requests: Loads ~40% of total content
-- Old approach: Loaded 100% always
+- Loads only relevant files for your request
+- Simple requests: Loads minimal content
+- Complex requests: Loads what's needed
+- Efficient selective loading
 
 **2. More Focused Output**
 - Claude has precise instructions for each deliverable type
@@ -108,46 +108,45 @@ Output to User
 1. Reads `SKILL.md` (300 lines)
    - Understands this is a full upgrade request
    - Identifies needs all 3 deliverables
-   
-2. Loads workflows (1,200 lines total):
+
+2. Loads workflows as needed:
+   - `workflows/direct-analysis-workflow.md` - How to analyze directly
    - `workflows/upgrade-report-workflow.md` - Steps to generate report
-   - `workflows/detection-script-workflow.md` - Steps to generate script
    - `workflows/app-update-preview-workflow.md` - Steps to generate preview
-   
+
 3. Loads version guide (~800 lines):
    - `version-guides/upgrade-8.0-to-8.1.md` - Breaking changes and details
-   
+
 4. References quality checklist (~80 lines):
    - `reference/reference-files-package.md` - Quality section
-   
+
 5. **Total loaded:** ~2,380 lines (was 1,066 lines loaded always before)
 6. **Generates:** All 3 deliverables with consistent quality
 
 **Time:** Efficient despite higher line count because it's focused content
 
-##### Type 2: Detection Script Only
+##### Type 2: Breaking Changes Analysis Only
 
-**User says:** "Create a detection script for Rails 8.0"
+**User says:** "Find breaking changes in my Rails 7.2 app"
 
-**Claude's process:**
-1. Reads `SKILL.md` (300 lines)
-   - Understands this is detection-script-only request
-   - Skips other deliverables
-   
-2. Loads specific workflow (400 lines):
-   - `workflows/detection-script-workflow.md` - Steps for script generation
-   
-3. Loads example (250 lines):
-   - `examples/detection-script-only.md` - Example structure
-   
-4. Loads version guide (~800 lines):
+**Agent's process:**
+1. Reads `SKILL.md`
+   - Understands this is analysis-only request
+   - Skips full report generation
+
+2. Loads analysis workflow:
+   - `workflows/direct-analysis-workflow.md` - How to analyze directly
+
+3. Loads example:
+   - `examples/direct-analysis-only.md` - Example structure
+
+4. Loads version guide:
    - Relevant version guide for pattern data
-   
-5. **Total loaded:** ~1,750 lines
-6. **Skipped:** upgrade-report-workflow, app-update-preview-workflow
-7. **Generates:** Just the detection script
 
-**Benefit:** 30% less content loaded compared to full upgrade
+5. **Executes:** Direct analysis with parallel Grep (< 10 seconds)
+6. **Generates:** Summary of findings with file:line references
+
+**Benefit:** Immediate results without full report generation
 
 ##### Type 3: Preview Only
 
@@ -172,10 +171,10 @@ Output to User
 **Claude's process:**
 1. Reads `SKILL.md` (300 lines)
    - Recognizes multi-hop scenario
-   
+
 2. Loads strategy example (300 lines):
    - `examples/multi-hop-upgrade.md` - Sequential requirement explanation
-   
+
 3. **Initial total:** ~600 lines
 4. **Then:** Asks user which approach they prefer
 5. **On-demand:** Loads workflows for each hop as confirmed
@@ -226,20 +225,20 @@ Output to User
 
 **Lines:** ~400
 
-#### 2. detection-script-workflow.md
+#### 2. direct-analysis-workflow.md
 
-**Purpose:** Instructions for converting YAML patterns to bash detection scripts
+**Purpose:** Instructions for analyzing projects directly using Cursor tools
 
 **Contains:**
-- Pattern file reading instructions
-- Bash code generation rules
-- Check block creation logic
-- File list generation
-- Script template population
+- Pattern-to-Grep conversion logic
+- Parallel execution strategy
+- Real-time analysis process
+- Findings aggregation
+- Performance optimization
 
-**When loaded:** Full upgrade OR detection-script-only request
+**When loaded:** All upgrade requests
 
-**Lines:** ~400
+**Lines:** ~600
 
 #### 3. app-update-preview-workflow.md
 
@@ -248,9 +247,9 @@ Output to User
 **Contains:**
 - Config file identification logic
 - OLD/NEW comparison format
-- Neovim integration steps
+- File update guidance using StrReplace
 - Custom code detection
-- Interactive update process
+- Agent-assisted update process
 
 **When loaded:** Full upgrade OR preview-only request
 
@@ -286,18 +285,19 @@ Output to User
 
 **Lines:** ~300
 
-#### 3. detection-script-only.md
+#### 3. direct-analysis-only.md
 
-**Purpose:** Example when user only wants detection script
+**Purpose:** Example when user only wants breaking changes analysis
 
 **Shows:**
-- Focused request handling
-- How to skip other deliverables
-- Script-only output
+- Direct analysis without full report
+- Fast results (< 10 seconds)
+- Summary of findings with context
+- Real code examples with file:line
 
-**When loaded:** When generating detection-script-only
+**When loaded:** When user requests analysis only
 
-**Lines:** ~250
+**Lines:** ~400
 
 #### 4. preview-only.md
 
@@ -380,13 +380,6 @@ Output to User
 - Update workflow once → Benefits all uses
 - Fix example once → Consistent everywhere
 - Improve quality check once → Applied universally
-
-**Old approach had:**
-- Workflow instructions repeated in examples
-- Quality checks duplicated across sections
-- Inconsistencies from manual updates
-
-**New approach ensures:**
 - Examples reference workflows
 - One authoritative source per topic
 - No drift between sections
@@ -410,7 +403,7 @@ Output to User
 All your existing commands work exactly the same:
 ```bash
 "Upgrade my Rails app to 8.1"
-"Create detection script for Rails 8.0"
+"Find breaking changes in my Rails 7.2 app"
 "Show me config changes for Rails 8.1"
 "Help me upgrade from 7.0 to 8.1"
 "What ActiveRecord changes are in Rails 8.0?"
@@ -451,7 +444,7 @@ Each workflow file follows this pattern:
 
 ### Step 1: [Action]
 [Detailed instructions]
-[MCP tool calls]
+[Cursor tool calls: Read, Grep, Glob, LS]
 [Expected results]
 
 ### Step 2: [Action]
@@ -468,9 +461,9 @@ Each workflow file follows this pattern:
 
 **Steps:**
 1. Load template (`templates/upgrade-report-template.md`)
-2. Gather project data (MCP tools)
+2. Gather project data (Read, Grep for patterns)
 3. Load version guide (based on versions)
-4. Detect custom code (pattern matching)
+4. Detect custom code (parallel Grep searches)
 5. Identify breaking changes (analyze impact)
 6. Generate OLD/NEW examples
 7. Create step-by-step guide
@@ -486,12 +479,12 @@ Each workflow file follows this pattern:
 - Prioritized changes (HIGH/MEDIUM/LOW)
 - Comprehensive coverage
 
-#### Detection Script Workflow Structure
+#### Direct Analysis Workflow Structure
 
-**File:** `workflows/detection-script-workflow.md`
+**File:** `workflows/direct-analysis-workflow.md`
 
 **Steps:**
-1. Load script template (`templates/detection-script-template.sh`)
+1. Load breaking change patterns from YAML
 2. Load pattern file (YAML from `detection-scripts/patterns/`)
 3. Parse patterns into sections
 4. Generate check blocks (YAML → bash)
@@ -515,20 +508,20 @@ Each workflow file follows this pattern:
 **Steps:**
 1. Load preview template
 2. Identify config files to update
-3. Read current file contents (MCP)
+3. Read current file contents (Read tool)
 4. Determine new content (version guide)
 5. Generate OLD/NEW comparison
-6. Detect custom code
+6. Detect custom code (Grep patterns)
 7. Add ⚠️ warnings
 8. Format diff view
-9. Optional: Neovim integration
+9. Offer to apply changes with StrReplace
 10. Deliver preview
 
 **Key features:**
 - File-by-file comparison
 - Custom code detection
-- Neovim buffer updates
-- Interactive mode support
+- Agent-assisted file updates
+- Real-time interactive support
 
 ### Extending Workflows
 
@@ -544,8 +537,8 @@ Each workflow file follows this pattern:
 5. Update `SKILL.md`:
    ```markdown
    ## Deliverables
+   - Direct Analysis (workflows/direct-analysis-workflow.md)
    - Upgrade Report (workflows/upgrade-report-workflow.md)
-   - Detection Script (workflows/detection-script-workflow.md)
    - App:Update Preview (workflows/app-update-preview-workflow.md)
    + Dependency Report (workflows/dependency-report-workflow.md)  ← Add this
    ```
@@ -607,8 +600,8 @@ The workflows below describe WHAT happens. The actual HOW instructions are in th
 
 | Your Request | SKILL.md | Workflows | Examples | References | Version Guides |
 |--------------|----------|-----------|----------|------------|----------------|
-| "Upgrade to 8.1" | ✅ Always | ✅ All 3 | ❌ No | ✅ Quality | ✅ Relevant |
-| "Detection script for 8.0" | ✅ Always | ✅ Script | ✅ Script-only | ❌ No | ✅ Relevant |
+| "Upgrade to 8.1" | ✅ Always | ✅ Report | ❌ No | ✅ Quality | ✅ Relevant |
+| "Find breaking changes" | ✅ Always | ✅ Analysis | ✅ Summary | ❌ No | ✅ Relevant |
 | "Preview changes for 8.1" | ✅ Always | ✅ Preview | ✅ Preview-only | ❌ No | ✅ Relevant |
 | "Upgrade 7.0 to 8.1" | ✅ Always | ❌ No (yet) | ✅ Multi-hop | ❌ No | ❌ No (yet) |
 | "What AR changes in 8.0?" | ✅ Always | ❌ No | ❌ No | ❌ No | ✅ Relevant |
@@ -625,11 +618,11 @@ Loading sequence:
    → Identifies: full upgrade request
    → Needs: all 3 deliverables
 
-2. workflows/upgrade-report-workflow.md (400 lines)
-   → Instructions for generating report
+2. workflows/direct-analysis-workflow.md (600 lines)
+   → Instructions for direct analysis
 
-3. workflows/detection-script-workflow.md (400 lines)
-   → Instructions for generating script
+3. workflows/upgrade-report-workflow.md (400 lines)
+   → Instructions for generating report
 
 4. workflows/app-update-preview-workflow.md (400 lines)
    → Instructions for generating preview
@@ -650,14 +643,14 @@ Result: All 3 deliverables + quality validation
 User: "Create a detection script for Rails 8.0 upgrade"
 
 Loading sequence:
-1. SKILL.md (300 lines)
-   → Identifies: detection-script-only request
-   → Needs: just script
+1. SKILL.md
+   → Identifies: analysis request
+   → Needs: direct analysis
 
-2. workflows/detection-script-workflow.md (400 lines)
-   → Instructions for generating script
+2. workflows/direct-analysis-workflow.md
+   → Instructions for direct analysis
 
-3. examples/detection-script-only.md (250 lines)
+3. examples/direct-analysis-only.md
    → Example structure and format
 
 4. version-guides/upgrade-7.2-to-8.0.md (800 lines)
@@ -708,14 +701,14 @@ Result: Filtered answer about ActiveRecord only
 
 ### Loading Optimization Benefits
 
-**New Approach (v1.0):**
-- Full upgrade → Load ~2,380 lines (more detailed)
-- Detection only → Load ~1,750 lines (18% faster)
-- Preview only → Load ~1,600 lines (25% faster)
-- Multi-hop initial → Load ~600 lines (44% faster)
-- Query only → Load ~1,100 lines (similar)
+**Selective Loading:**
+- Full upgrade → Loads all necessary workflows
+- Analysis only → Loads analysis workflow only
+- Preview only → Loads preview workflow only
+- Multi-hop → Loads strategy guide first, then workflows per hop
+- Query only → Loads version guides only
 
-**Result:** 
+**Result:**
 - More focused content per request
 - Better organization
 - Easier maintenance
@@ -758,7 +751,7 @@ The modular structure makes maintenance easy:
    - Loading patterns by request type
    - Workflow and example file purposes
    - File organization benefits
-   
+
 2. "🔍 Advanced: Workflow File Details" - For advanced users
    - Workflow file structure
    - Each workflow's steps

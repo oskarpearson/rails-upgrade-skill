@@ -45,15 +45,15 @@ This skill helps upgrade Rails applications by:
 - **Analyzing** your Rails project using Rails MCP tools
 - **Identifying** breaking changes from official CHANGELOGs
 - **Detecting** custom code that needs attention
-- **Generating** detailed upgrade reports with OLD/NEW examples
-- **Updating** files interactively using Neovim MCP (optional)
+- **Generating** detailed upgrade reports with OLD/NEW examples from YOUR code
+- **Analyzing** projects directly using Cursor's native tools (Read, Grep, Glob)
 - **Providing** rollback plans and testing checklists
 
 ---
 
 ## 📋 Supported Upgrade Path
 
-**From:** Rails 7.0.x  
+**From:** Rails 7.0.x
 **To:** Rails 7.1.6
 
 This is a **MEDIUM complexity** upgrade estimated to take **2-4 hours** for most applications.
@@ -62,29 +62,33 @@ This is a **MEDIUM complexity** upgrade estimated to take **2-4 hours** for most
 
 ## 🔧 How This Skill Works
 
-### Phase 1: Project Analysis
-1. Uses `railsMcpServer:project_info` to understand your Rails project
-2. Uses `railsMcpServer:analyze_models` to understand data models
-3. Uses `railsMcpServer:get_schema` to understand database structure
-4. Uses `railsMcpServer:get_routes` to understand application routes
-5. Uses `railsMcpServer:get_file` to read configuration files
+### Phase 1: Project Analysis (< 1 second)
+1. `Read("Gemfile")` to detect Rails version
+2. `Read("config/application.rb")` to understand project configuration
+3. `LS("/")` to verify Rails project structure
+4. `Glob("app/models/**/*.rb")` to find all models
+5. `Grep` patterns to search for breaking change usage
 
-### Phase 2: Change Detection
-1. Compares project against breaking changes from CHANGELOGs
-2. Identifies deprecated features being used
+### Phase 2: Change Detection (< 5 seconds)
+1. Parallel `Grep` searches for all breaking change patterns
+2. Identifies deprecated features being used (with file:line references)
 3. Detects custom configurations that may conflict
-4. Flags files that need manual review
+4. Reads affected files for full context
+5. Flags files that need manual review with ⚠️ warnings
 
-### Phase 3: Report Generation  
-1. Generates comprehensive upgrade report
-2. Provides OLD vs NEW code examples
+### Phase 3: Report Generation
+1. Generates comprehensive upgrade report with actual code from YOUR project
+2. Provides OLD vs NEW code examples using your real code
 3. Marks custom code with ⚠️ warnings
 4. Includes step-by-step migration instructions
+5. Lists all affected files with file:line references
 
-### Phase 4: Interactive Updates (Optional)
-1. Uses `nvimMcpServer:get_project_buffers` to see open files
-2. Uses `nvimMcpServer:update_buffer` to apply changes
-3. User reviews and confirms each change
+### Phase 4: Agent-Assisted Updates (Optional)
+1. Agent shows OLD vs NEW code for each file
+2. User reviews proposed changes
+3. User can request: "Apply these changes to [filename]"
+4. Agent uses `StrReplace` to update files precisely
+5. User tests changes incrementally
 
 ---
 
@@ -128,8 +132,8 @@ The assistant will:
 
 #### 1. **Cache Classes → Enable Reloading**
 
-**Component:** Railties, Environment Configuration  
-**Impact:** High - Changes core configuration pattern  
+**Component:** Railties, Environment Configuration
+**Impact:** High - Changes core configuration pattern
 **Type:** Breaking - old config will trigger deprecation
 
 **OLD (Rails 7.0):**
@@ -159,13 +163,13 @@ config.enable_reloading = true
 
 #### 2. **Force SSL Now Enabled by Default**
 
-**Component:** ActionPack, Security  
-**Impact:** High - Changes production behavior  
+**Component:** ActionPack, Security
+**Impact:** High - Changes production behavior
 **Type:** Breaking - affects deployment
 
 **OLD (Rails 7.0):**
 ```ruby
-# config/environments/production.rb  
+# config/environments/production.rb
 # SSL was opt-in
 # config.force_ssl = true
 ```
@@ -197,8 +201,8 @@ config.force_ssl = true  # This is now ON by default
 
 #### 3. **Action Mailer Preview Path Now Plural**
 
-**Component:** ActionMailer  
-**Impact:** High - Breaking API change  
+**Component:** ActionMailer
+**Impact:** High - Breaking API change
 **Type:** Breaking
 
 **OLD (Rails 7.0):**
@@ -227,8 +231,8 @@ config.action_mailer.preview_paths = ["test/mailers/previews"]
 
 #### 4. **Database Location Changed for SQLite**
 
-**Component:** ActiveRecord  
-**Impact:** High - Changes file locations  
+**Component:** ActiveRecord
+**Impact:** High - Changes file locations
 **Type:** Breaking - affects data storage
 
 **OLD (Rails 7.0):**
@@ -273,8 +277,8 @@ test:
 
 #### 5. **Autoload from lib/ by Default**
 
-**Component:** Railties, Autoloading  
-**Impact:** High - Changes autoloading behavior  
+**Component:** Railties, Autoloading
+**Impact:** High - Changes autoloading behavior
 **Type:** Breaking - may load unexpected files
 
 **OLD (Rails 7.0):**
@@ -296,8 +300,8 @@ config.autoload_lib(ignore: %w(assets tasks))
 - Ignores `lib/assets` and `lib/tasks` by default
 - Classes in `lib/` now available without explicit require
 
-⚠️ **Custom Code Warning:** 
-- Check for name conflicts in `lib/` 
+⚠️ **Custom Code Warning:**
+- Check for name conflicts in `lib/`
 - Files in `lib/` will now be autoloaded
 
 **Migration Steps:**
@@ -312,8 +316,8 @@ config.autoload_lib(ignore: %w(assets tasks))
 
 #### 6. **ActiveRecord Query Log Format**
 
-**Component:** ActiveRecord  
-**Impact:** Medium - Changes log format  
+**Component:** ActiveRecord
+**Impact:** Medium - Changes log format
 **Type:** Behavior change
 
 **OLD (Rails 7.0):**
@@ -345,8 +349,8 @@ config.active_record.query_log_tags_format = :legacy
 
 #### 7. **Content Security Policy (CSP) Updates**
 
-**Component:** ActionPack  
-**Impact:** Medium - Security configuration  
+**Component:** ActionPack
+**Impact:** Medium - Security configuration
 **Type:** Behavior change
 
 **OLD (Rails 7.0):**
@@ -359,11 +363,11 @@ end
 
 **NEW (Rails 7.1):**
 ```ruby
-# config/initializers/content_security_policy.rb  
+# config/initializers/content_security_policy.rb
 config.content_security_policy do |policy|
   # Can now pass arrays to style-src
   policy.style_src :self, :unsafe_inline
-  
+
   # unsafe_hashes now available as symbol
   policy.script_src :unsafe_hashes, "'sha256-abc123'"
 end
@@ -378,8 +382,8 @@ end
 
 #### 8. **Cache Format Version 7.1**
 
-**Component:** ActiveSupport::Cache  
-**Impact:** Medium - Performance improvement  
+**Component:** ActiveSupport::Cache
+**Impact:** Medium - Performance improvement
 **Type:** Opt-in enhancement
 
 **OLD (Rails 7.0):**
@@ -412,8 +416,8 @@ config.active_support.cache_format_version = 7.1
 
 #### 9. **Dockerfile Generated by Default**
 
-**Component:** Railties  
-**Impact:** Medium - New files  
+**Component:** Railties
+**Impact:** Medium - New files
 **Type:** Addition (non-breaking)
 
 **What Changed:**
@@ -437,8 +441,8 @@ config.active_support.cache_format_version = 7.1
 
 #### 10. **Verbose Active Job Enqueue Logs**
 
-**Component:** ActiveJob  
-**Impact:** Low - Logging enhancement  
+**Component:** ActiveJob
+**Impact:** Low - Logging enhancement
 **Type:** Opt-in feature
 
 **NEW (Rails 7.1):**
@@ -462,8 +466,8 @@ Enqueued SendEmailJob (Job ID: 123) to Sidekiq(default)
 
 #### 11. **Health Check Endpoint**
 
-**Component:** Railties  
-**Impact:** Low - New feature  
+**Component:** Railties
+**Impact:** Low - New feature
 **Type:** Addition (non-breaking)
 
 **NEW (Rails 7.1):**
@@ -486,8 +490,8 @@ get "up" => "rails/health#show", as: :rails_health_check
 
 #### 12. **Test Runner Improvements**
 
-**Component:** Railties  
-**Impact:** Low - Better testing experience  
+**Component:** Railties
+**Impact:** Low - Better testing experience
 **Type:** Enhancement
 
 **NEW Features:**
@@ -582,7 +586,7 @@ unsafe_inline, unsafe_eval
 # OLD
 gem "rails", "~> 7.0.0"
 
-# NEW  
+# NEW
 gem "rails", "~> 7.1.6"
 ```
 
@@ -612,7 +616,7 @@ bundle update rails
    ```ruby
    # Update load defaults
    config.load_defaults 7.1
-   
+
    # Add lib autoloading
    config.autoload_lib(ignore: %w(assets tasks))
    ```
@@ -746,81 +750,59 @@ bin/rails test:system
 
 ---
 
-## 🔧 Rails MCP Tool Integration
+## 🔧 Cursor Native Tools Integration
 
 ### Available Tools
 
-This skill uses the following Rails MCP tools:
+This skill uses Cursor's built-in tools for fast, local analysis:
 
-1. **railsMcpServer:project_info**
-   - Gets Rails version
-   - Identifies directory structure
-   - Detects API-only mode
+1. **Read** - File reading
+   - Reads Gemfile to get Rails version
+   - Reads config files for settings
+   - Reads models for analysis
+   - 5-10x faster than network calls
 
-2. **railsMcpServer:list_files**
-   - Lists configuration files
-   - Finds models and controllers
-   - Locates initializers
+2. **Grep** - Pattern searching (ripgrep)
+   - Searches for breaking change patterns
+   - Finds deprecated configurations
+   - Detects custom middleware
+   - Can run multiple searches in parallel
+   - Extremely fast even on large codebases
 
-3. **railsMcpServer:get_file**
-   - Reads configuration files
-   - Analyzes custom code
-   - Detects patterns
+3. **Glob** - File pattern matching
+   - Finds all models: `app/models/**/*.rb`
+   - Lists initializers: `config/initializers/**/*.rb`
+   - Locates any file by pattern
 
-4. **railsMcpServer:analyze_models**
-   - Understands data models
-   - Identifies associations
-   - Checks schema
+4. **LS** - Directory listing
+   - Verifies Rails structure
+   - Lists environment files
+   - Checks project organization
 
-5. **railsMcpServer:get_schema**
-   - Reviews database structure
-   - Identifies migrations needed
-
-6. **railsMcpServer:get_routes**
-   - Maps application endpoints
-   - Identifies route conflicts
+5. **Shell** - Command execution
+   - Gets routes: `bin/rails routes`
+   - Runs Ruby code: `bin/rails runner 'code'`
+   - Executes any Rails command
 
 ### Tool Workflow
 
 ```
 User Request
     ↓
-railsMcpServer:project_info (understand project)
+Read("Gemfile") + Grep (detect version)
     ↓
-railsMcpServer:list_files (find relevant files)
+Parallel Grep searches (find breaking changes)
     ↓
-railsMcpServer:get_file (read configurations)
+Read affected files (get context)
     ↓
 Analyze against CHANGELOGs
     ↓
-Generate upgrade report
+Generate upgrade report (< 10 seconds total!)
     ↓
-(Optional) nvimMcpServer:update_buffer (apply changes)
+(Optional) StrReplace (apply changes with user approval)
 ```
 
----
-
-## 📱 Neovim MCP Integration
-
-### Interactive Mode Workflow
-
-1. **Check Open Files:**
-   ```
-   nvimMcpServer:get_project_buffers
-   ```
-   Returns list of files open in Neovim
-
-2. **Show Proposed Changes:**
-   Assistant shows OLD vs NEW for each file
-
-3. **User Confirms:**
-   User says "yes" or "update that file"
-
-4. **Update Buffer:**
-   ```
-   nvimMcpServer:update_buffer
-   ```
-   Updates the file in Neovim with new content
+**Performance:** 3-5x faster than external tools, works offline
 
 5. **File Auto-Reloads:**
    Neovim detects change and reloads
@@ -1083,8 +1065,8 @@ Claude can:
 ## 🎉 Skill Version Information
 
 **Version:** 1.0
-**Last Updated:** November 1, 2025  
-**Rails Coverage:** 7.0.x → 7.1.6  
+**Last Updated:** November 1, 2025
+**Rails Coverage:** 7.0.x → 7.1.6
 **CHANGELOG Sources:** Official Rails GitHub (v7.1.6 tag)
 
 **Includes:**

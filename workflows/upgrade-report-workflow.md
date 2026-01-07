@@ -9,9 +9,9 @@
 ## Prerequisites
 
 Before starting, ensure you have:
-- Current Rails version (from `railsMcpServer:project_info`)
+- Current Rails version (from reading Gemfile)
 - Target Rails version (from user request)
-- Project type (API-only or Full stack)
+- Project type (API-only or Full stack from config/application.rb)
 
 ---
 
@@ -22,7 +22,7 @@ Before starting, ensure you have:
 Read the upgrade report template:
 
 ```
-railsMcpServer:get_file("templates/upgrade-report-template.md")
+Read("templates/upgrade-report-template.md")
 ```
 
 Note all `{PLACEHOLDER}` variables that need replacement.
@@ -31,23 +31,26 @@ Note all `{PLACEHOLDER}` variables that need replacement.
 
 ### Step 2: Gather Project Data
 
-**Use MCP tools to collect:**
+**Use Cursor native tools to collect (run in parallel for speed):**
 
 ```
-1. railsMcpServer:project_info
-   → Rails version, structure, type
+1. Read("Gemfile")
+   → Extract Rails version via Grep("gem ['\"]rails['\"]")
 
-2. railsMcpServer:get_file("Gemfile")
-   → Gem dependencies
+2. Read("config/application.rb")
+   → Application configuration, API-only mode, load_defaults
 
-3. railsMcpServer:get_file("config/application.rb")
-   → Application configuration
-
-4. railsMcpServer:get_file("config/environments/production.rb")
+3. Read("config/environments/production.rb")
    → Production settings
 
-5. railsMcpServer:list_files("config/initializers")
-   → Custom initializers
+4. Read("config/environments/development.rb")
+   → Development settings
+
+5. Glob("config/initializers/**/*.rb")
+   → List all custom initializers
+
+6. LS("/")
+   → Verify Rails project structure (app/, config/, db/, lib/)
 ```
 
 ---
@@ -73,31 +76,35 @@ Extract:
 
 ### Step 4: Detect Custom Code
 
-Search for custom configurations that may conflict:
-
-**Common Custom Code Patterns:**
+**Use Grep to search for custom configurations (run all in parallel):**
 
 1. **Custom Middleware:**
    ```
-   Search pattern: "use " in config files
+   Grep("middleware.use|middleware.insert", glob: "config/**/*.rb", -C: 2)
    Flag: ⚠️ Custom middleware detected
    ```
 
 2. **Manual Redis Configuration:**
    ```
-   Search pattern: "Redis.new" in codebase
+   Grep("Redis.new|Redis.current", glob: "config/**/*.rb", -C: 2)
    Flag: ⚠️ Manual Redis configuration found
    ```
 
 3. **Custom Asset Pipeline:**
    ```
-   Search paths: config/initializers/assets.rb
+   Grep("assets|Sprockets|Propshaft", glob: "config/initializers/**/*.rb", -C: 2)
    Flag: ⚠️ Custom asset configuration detected
    ```
 
-4. **API-Specific Patterns:**
+4. **Custom Autoload Paths:**
    ```
-   Check: config.api_only in application.rb
+   Grep("autoload_paths|eager_load_paths", glob: "config/**/*.rb", -C: 2)
+   Flag: ⚠️ Custom load paths detected
+   ```
+
+5. **API-Specific Patterns:**
+   ```
+   Grep("config.api_only", path: "config/application.rb")
    Flag: ⚠️ API-only application detected
    ```
 

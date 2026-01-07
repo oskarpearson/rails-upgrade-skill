@@ -33,7 +33,7 @@ copyright: Copyright (c) 2025 [Mario Alberto Chávez Cárdenas]
 
 # Rails Upgrade Assistant Skill: 8.0.4 → 8.1.1
 
-**Version:** 1.0 
+**Version:** 1.0
 **Created:** November 1, 2025
 **Source:** Official Rails CHANGELOGs from GitHub
 
@@ -340,7 +340,7 @@ config.load_defaults 8.1
 ```ruby
 class ApplicationController < ActionController::Base
   allow_browser versions: :modern
-  
+
   # NEW in 8.1.1 - invalidates etag when importmap changes
   stale_when_importmap_changes
 end
@@ -483,13 +483,13 @@ Make executable: `chmod +x bin/ci`
 
 CI.run do
   step "Setup", "bin/setup --skip-server"
-  
+
   step "Style: Ruby", "bin/rubocop"
-  
+
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Importmap vulnerability audit", "bin/importmap audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager"
-  
+
   step "Tests: Rails", "bin/rails test"
   step "Tests: System", "bin/rails test:system"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
@@ -517,7 +517,7 @@ config.assets.quiet = true
 ```ruby
 # config/initializers/content_security_policy.rb
 
-# Automatically add nonce to javascript_tag, javascript_include_tag, 
+# Automatically add nonce to javascript_tag, javascript_include_tag,
 # and stylesheet_link_tag if corresponding directives are specified
 # config.content_security_policy_nonce_auto = true
 ```
@@ -528,7 +528,7 @@ config.assets.quiet = true
 ```ruby
 # config/puma.rb
 
-# You can set WEB_CONCURRENCY to 'auto' to automatically start 
+# You can set WEB_CONCURRENCY to 'auto' to automatically start
 # a worker for each available processor
 ```
 
@@ -709,7 +709,7 @@ end
 class PagesController < ActionController::Base
   def show
     @page = Page.find(params[:id])
-    
+
     respond_to do |format|
       format.html
       format.md { render markdown: @page }
@@ -755,7 +755,7 @@ def show
   else
     @article = Article.find(params[:id])
   end
-  
+
   render :show
 end
 ```
@@ -1127,11 +1127,13 @@ Update API clients to use `&` instead of `;`:
 ```
 
 I will:
-1. Use `railsMcpServer:project_info` to understand your setup
-2. Use `railsMcpServer:get_file` to read your configs
-3. Use `railsMcpServer:analyze_models` to check your models
-4. Detect custom configurations automatically
-5. Generate a report with ⚠️ warnings for your custom code
+1. Read("Gemfile") to detect your Rails version
+2. Read your config files to understand your setup
+3. Use Grep to search for breaking change patterns
+4. Read your models and analyze them for compatibility
+5. Detect custom configurations automatically
+6. Generate a report with ⚠️ warnings for your custom code
+(Analysis completes in < 10 seconds!)
 
 ### Step 2: Review Changes
 
@@ -1148,10 +1150,11 @@ I'll show you:
 ```
 
 I will:
-1. Use `nvimMcpServer:get_project_buffers` to see your open files
-2. Show you each change before applying
-3. Use `nvimMcpServer:update_buffer` to update files in Neovim
-4. Verify changes with you
+1. Show you each change with OLD vs NEW code
+2. Ask for approval: "Should I apply these changes to [filename]?"
+3. Use StrReplace to update files precisely
+4. Verify changes with you after each update
+5. You test changes incrementally
 
 ### Step 4: Verify
 
@@ -1173,7 +1176,7 @@ I automatically detect and warn about:
 
 ### Configuration Customizations
 - ⚠️ Custom SSL middleware
-- ⚠️ Manual database pool configuration  
+- ⚠️ Manual database pool configuration
 - ⚠️ Custom query parameter parsing
 - ⚠️ ActiveJob adapter customizations
 - ⚠️ Custom storage services
@@ -1238,7 +1241,7 @@ See the attached diff document for complete file-by-file changes between Rails 8
 This skill is based on official Rails CHANGELOGs and the railsdiff.org diff output.
 All recommendations follow Rails core team guidance and best practices.
 
-**Version:** 1.0 
+**Version:** 1.0
 **Last Updated:** November 1, 2025
 **Rails Versions:** 8.0.4 → 8.1.1
 

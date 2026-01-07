@@ -28,12 +28,13 @@ Complete guide for upgrading Ruby on Rails applications from version 7.0 through
 
 The **Rails Upgrade Assistant** is a modular Claude skill that:
 
-- ✅ **Analyzes** your Rails project intelligently using Rails MCP tools
-- ✅ **Detects** custom code and configurations automatically  
+- ✅ **Analyzes** your Rails project directly using Cursor's native tools
+- ✅ **Detects** custom code and configurations automatically in real-time
 - ✅ **Generates** comprehensive upgrade reports with OLD/NEW code examples
 - ✅ **Preserves** your customizations with clear ⚠️ warnings
 - ✅ **Guides** you step-by-step through the entire upgrade process
 - ✅ **Loads selectively** - only the workflows and examples you need
+- ✅ **Works instantly** - zero setup required in Cursor
 - ✅ **Based** on official Rails CHANGELOGs from GitHub
 
 ---
@@ -45,7 +46,7 @@ The **Rails Upgrade Assistant** is a modular Claude skill that:
 ```
 docs/
 ├── PACKAGE-INFO.md          ⭐ This file - Package overview
-├── README.md                📖 Getting started guide  
+├── README.md                📖 Getting started guide
 ├── QUICK-REFERENCE.md       ⚡ Fast command lookup
 └── USAGE-GUIDE.md           📚 Comprehensive how-to
 ```
@@ -60,13 +61,13 @@ rails-upgrade-assistant/
 │
 ├── workflows/               📋 How to generate deliverables
 │   ├── upgrade-report-workflow.md
-│   ├── detection-script-workflow.md  
+│   ├── direct-analysis-workflow.md
 │   └── app-update-preview-workflow.md
 │
 ├── examples/                💡 Real usage scenarios
 │   ├── simple-upgrade.md
 │   ├── multi-hop-upgrade.md
-│   ├── detection-script-only.md
+│   ├── direct-analysis-only.md
 │   └── preview-only.md
 │
 ├── reference/               📖 Quick reference guides
@@ -91,7 +92,7 @@ rails-upgrade-assistant/
     │   ├── rails-80-patterns.yml
     │   └── rails-81-patterns.yml
     └── templates/
-        └── detection-script-template.sh
+        └── (optional script templates)
 ```
 
 **Total:** ~2,750 lines of well-organized, modular content
@@ -110,27 +111,28 @@ rails-upgrade-assistant/
 
 **Simple request:** "Upgrade my Rails app to 8.1"
 ```
-1. Read: SKILL.md (300 lines) → Get overview
-2. Load: workflows/upgrade-report-workflow.md → How to generate report
-3. Load: workflows/detection-script-workflow.md → How to generate script
+1. Read: SKILL.md → Get overview
+2. Load: workflows/direct-analysis-workflow.md → How to analyze
+3. Load: workflows/upgrade-report-workflow.md → How to generate report
 4. Load: workflows/app-update-preview-workflow.md → How to generate preview
-5. Reference: reference/quality-checklist → Verify output
-6. Generate: All 3 deliverables
+5. Execute: Direct analysis with parallel Grep (< 5 seconds)
+6. Generate: Comprehensive report with both deliverables
 ```
 **Total read:** ~1,500 lines (only what's needed)
 
-**Detection script only:** "Create detection script for Rails 8.0"
+**Analysis only:** "Find breaking changes in my Rails 7.2 app"
 ```
-1. Read: SKILL.md (300 lines) → Get overview
-2. Load: workflows/detection-script-workflow.md → How to generate script
-3. Reference: examples/detection-script-only.md → Example structure
-4. Generate: Just detection script
+1. Read: SKILL.md → Get overview
+2. Load: workflows/direct-analysis-workflow.md → How to analyze
+3. Load: detection-scripts/patterns/rails-80-patterns.yml → Patterns
+4. Execute: Parallel Grep searches (< 5 seconds)
+5. Generate: Summary with file:line references
 ```
-**Total read:** ~950 lines (skips irrelevant workflows)
+**Total time:** < 10 seconds for immediate results
 
 **Multi-hop upgrade:** "Upgrade from Rails 7.0 to 8.1"
 ```
-1. Read: SKILL.md (300 lines) → Get overview  
+1. Read: SKILL.md (300 lines) → Get overview
 2. Load: examples/multi-hop-upgrade.md → Understand approach
 3. Confirm: Which approach user wants
 4. Load workflows: As needed for each hop
@@ -149,19 +151,7 @@ rails-upgrade-assistant/
 3. Upload the entire `rails-upgrade-assistant/` folder
 4. Verify all directories are uploaded (SKILL.md, workflows/, examples/, etc.)
 
-### Step 2: Verify MCP Connection (1 minute)
-
-**Required:** [Rails MCP Server](https://github.com/maquina-app/rails-mcp-server)
-- Provides project analysis capabilities
-- Reads your code and configuration
-- Detects custom implementations
-
-**Optional:** [Neovim MCP Server](https://github.com/maquina-app/nvim-mcp-server)
-- Enables interactive file updates  
-- Live buffer management
-- Real-time code changes
-
-### Step 3: Start Upgrading! (2 minutes)
+### Step 2: Start Upgrading! (seconds)
 
 ```
 Say to Claude:
@@ -211,11 +201,11 @@ The skill automatically handles this by:
 #### 🔰 First-Time Users
 **Reading order:**
 1. PACKAGE-INFO.md (this file) - 5 min
-2. README.md - 15 min  
+2. README.md - 15 min
 3. QUICK-REFERENCE.md - 10 min
 4. Try: "Upgrade my Rails app to [version]"
 
-**Time investment:** 30 minutes  
+**Time investment:** 30 minutes
 **Expected outcome:** Ready for first upgrade
 
 #### 🎯 Experienced Users
@@ -224,7 +214,7 @@ The skill automatically handles this by:
 2. QUICK-REFERENCE.md - Commands section - 2 min
 3. Try: "Upgrade my Rails app to [version]"
 
-**Time investment:** 7 minutes  
+**Time investment:** 7 minutes
 **Expected outcome:** Immediate productivity
 
 #### 🚀 Advanced Users
@@ -233,7 +223,7 @@ The skill automatically handles this by:
 2. USAGE-GUIDE.md - Interactive Mode section - 10 min
 3. Try: "Upgrade to [version] in interactive mode"
 
-**Time investment:** 15 minutes  
+**Time investment:** 15 minutes
 **Expected outcome:** Maximum efficiency
 
 ---
@@ -245,7 +235,7 @@ The skill automatically handles this by:
 1. README.md → Quick Start (5 min)
 2. QUICK-REFERENCE.md → Commands (2 min)
 
-**Say:** "Upgrade my Rails app to 8.1"  
+**Say:** "Upgrade my Rails app to 8.1"
 **Time:** 7 minutes prep + 2-4 hours execution
 
 #### Multi-Hop Upgrade (7.0 → 8.1)
@@ -254,14 +244,14 @@ The skill automatically handles this by:
 2. USAGE-GUIDE.md → Multi-Hop Workflow (15 min)
 3. Review: `examples/multi-hop-upgrade.md` in skill
 
-**Say:** "Help me upgrade from Rails 7.0 to 8.1"  
+**Say:** "Help me upgrade from Rails 7.0 to 8.1"
 **Time:** 25 minutes prep + 2-3 weeks execution
 
 #### Risk Assessment Only
 **Read:**
 1. QUICK-REFERENCE.md → Breaking Changes (5 min)
 
-**Say:** "Assess upgrade impact from [version] to [version]"  
+**Say:** "Assess upgrade impact from [version] to [version]"
 **Time:** 5 minutes prep + 1-2 hours analysis
 
 ---
@@ -331,8 +321,8 @@ Copy and paste these into Claude:
 # Custom code impact
 "Will my Redis cache work after upgrading to 8.0?"
 
-# Generate detection script only
-"Create a detection script for Rails 8.0 upgrade"
+# Find breaking changes only
+"Find breaking changes in my Rails 7.2 app"
 
 # Preview config changes only
 "Show me what config files will change for Rails 8.1"
@@ -363,15 +353,15 @@ The modular skill generates three comprehensive deliverables by loading specific
 - Rollback plan
 - Official resources
 
-#### 2. **Detection Script** (Bash)
-*Workflow: `workflows/detection-script-workflow.md`*
+#### 2. **Direct Analysis** (Real-time)
+*Workflow: `workflows/direct-analysis-workflow.md`*
 
-- Automated code scanning
-- Pattern-based detection
+- Real-time code scanning using Cursor tools
+- Pattern-based detection with parallel Grep
 - Custom configuration checks
 - Compatibility verification
-- Instant feedback on readiness
-- Pre-upgrade validation
+- Instant feedback on readiness (< 10 seconds)
+- Interactive clarification support
 
 #### 3. **App:Update Preview** (Config Changes)
 *Workflow: `workflows/app-update-preview-workflow.md`*
@@ -449,7 +439,7 @@ Both modes fully documented in USAGE-GUIDE.md.
 |-------|-----------|---------|
 | Skill not responding | Verify installation: "List skills" | README.md |
 | Can't detect version | Check Gemfile exists | USAGE-GUIDE.md |
-| MCP server error | Reinstall: `npm install -g rails-mcp-server` | USAGE-GUIDE.md |
+| File not found | Check project path in Cursor | USAGE-GUIDE.md |
 | Report too generic | Ask: "Analyze my config first" | USAGE-GUIDE.md |
 | Tests failing | Review custom code warnings | USAGE-GUIDE.md |
 | Workflow not found | Verify directory structure complete | Implementation Guide |
@@ -528,7 +518,7 @@ Before your first upgrade:
 - [ ] Read PACKAGE-INFO.md (this file) - 5 min
 - [ ] Read README.md - 15 min
 - [ ] Install skill in Claude Project
-- [ ] Verify Rails MCP server connected
+- [ ] Open Rails project in Cursor
 - [ ] Verify all directories uploaded (workflows/, examples/, reference/)
 
 ### Project Readiness
@@ -553,7 +543,7 @@ Choose your path based on experience:
 5. Try: "Upgrade my Rails app to [version]"
 ```
 
-### 2. Experienced with Rails  
+### 2. Experienced with Rails
 ```
 1. Read: QUICK-REFERENCE.md - 10 min
 2. Install skill - 2 min
@@ -674,10 +664,10 @@ Just ask! Examples:
 **The modular skill is ready to use!**
 
 1. **Verify** all directories uploaded to Claude Project
-2. **Check** Rails MCP server connected
+2. **Open** your Rails project in Cursor
 3. **Say:** `"Upgrade my Rails app to [version]"`
-4. **Watch** Claude load only the workflows it needs
-5. **Review** the comprehensive 3-deliverable output
+4. **Watch** the agent analyze your project in real-time
+5. **Review** the comprehensive upgrade report
 6. **Follow** the step-by-step guide
 7. **Deploy** with confidence
 
@@ -700,6 +690,6 @@ Just ask! Examples:
 
 ---
 
-**Last Updated:** November 1, 2025  
-**Skill Version:** 1.0  
+**Last Updated:** November 1, 2025
+**Skill Version:** 1.0
 **Copyright:** (c) 2025 Mario Alberto Chávez Cárdenas

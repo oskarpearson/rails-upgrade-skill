@@ -117,21 +117,17 @@ I've generated three comprehensive deliverables for Hop 1:
 ## 📋 HOP 1: Rails 7.0 → 7.1
 
 ### Deliverable #1: Upgrade Report
-[Complete 50-page report for 7.0 → 7.1]
+[Complete comprehensive report for 7.0 → 7.1 with actual code examples]
 
-### Deliverable #2: Detection Script
-[Bash script for 7.0 → 7.1 breaking changes]
-
-### Deliverable #3: app:update Preview
-[Config file changes for 7.0 → 7.1]
+### Deliverable #2: app:update Preview
+[Config file changes for 7.0 → 7.1 with diffs]
 
 ---
 
 ## 🚀 Next Steps for Hop 1
 
-1. Review all deliverables
-2. Run detection script
-3. Complete upgrade
+1. Review both deliverables
+2. Complete upgrade following the migration guide
 4. Test thoroughly
 5. Deploy to staging
 6. Deploy to production
@@ -152,8 +148,8 @@ Perfect! I'll generate deliverables for all 4 hops so you can plan the complete 
 
 ## 📋 HOP 1: Rails 7.0 → 7.1
 
-**Complexity:** ⭐⭐ Medium  
-**Time:** 2-4 hours  
+**Complexity:** ⭐⭐ Medium
+**Time:** 2-4 hours
 **Risk:** Medium
 
 ### Key Breaking Changes
@@ -164,18 +160,15 @@ Perfect! I'll generate deliverables for all 4 hops so you can plan the complete 
 ### Deliverable #1: Upgrade Report
 [Complete report for 7.0 → 7.1]
 
-### Deliverable #2: Detection Script
-[Bash script for 7.0 → 7.1]
-
-### Deliverable #3: app:update Preview
+### Deliverable #2: app:update Preview
 [Config changes for 7.0 → 7.1]
 
 ---
 
 ## 📋 HOP 2: Rails 7.1 → 7.2
 
-**Complexity:** ⭐⭐ Medium  
-**Time:** 3-5 hours  
+**Complexity:** ⭐⭐ Medium
+**Time:** 3-5 hours
 **Risk:** Medium
 
 ### Key Breaking Changes
@@ -196,8 +189,8 @@ Perfect! I'll generate deliverables for all 4 hops so you can plan the complete 
 
 ## 📋 HOP 3: Rails 7.2 → 8.0
 
-**Complexity:** ⭐⭐⭐⭐ Very Hard  
-**Time:** 1-2 weeks  
+**Complexity:** ⭐⭐⭐⭐ Very Hard
+**Time:** 1-2 weeks
 **Risk:** High
 
 ### Key Breaking Changes
@@ -221,8 +214,8 @@ Perfect! I'll generate deliverables for all 4 hops so you can plan the complete 
 
 ## 📋 HOP 4: Rails 8.0 → 8.1
 
-**Complexity:** ⭐ Easy  
-**Time:** 2-4 hours  
+**Complexity:** ⭐ Easy
+**Time:** 2-4 hours
 **Risk:** Low
 
 ### Key Breaking Changes
